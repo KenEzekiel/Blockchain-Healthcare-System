@@ -5,7 +5,7 @@ const config: HardhatUserConfig = {
   solidity: "0.8.27",
   networks: {
     hardhat: {
-      chainId: 0,
+      chainId: 31337,
     },
   },
 };

@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@metamask/sdk-react": "^0.31.1",
+    "metamask": "0.0.1-security",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
