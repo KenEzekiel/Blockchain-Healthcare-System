@@ -87,7 +87,7 @@ export function useWeb3() {
   // Disconnect from the local chain
   async function disconnect() {
     try {
-      await sdk?.disconnect();
+      await sdk?.terminate();
       setAccount(null);
       setWeb3(null);
       console.log("Disconnected successfully!");
