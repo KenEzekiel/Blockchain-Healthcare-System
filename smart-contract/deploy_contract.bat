@@ -7,6 +7,7 @@ call npx hardhat clean
 
 echo Deploying Contract to localhost...
 call npx hardhat ignition deploy ./ignition/modules/Lock.ts --network localhost
+call npx hardhat ignition deploy ./ignition/modules/MedicalToken.ts --network localhost
 
 echo Deployment complete!
 pause
