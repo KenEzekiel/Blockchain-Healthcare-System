@@ -131,7 +131,7 @@ contract Insurance {
         bool success = medicalToken.transfer(provider, claimAmount);
         require(success, "Claim transfer failed");
 
-        emit Claimed(msg.sender, year, month, claimAmount, provider);
+        emit Claimed(msg.sender, year, month, claimAmount, provider, 1);
     }
 
     // ADMIN FUNCTIONS

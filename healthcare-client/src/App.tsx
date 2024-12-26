@@ -5,11 +5,19 @@ import { useWeb3 } from "./hooks/useWeb3";
 import { MedicalForm } from "./components/MedicalForm";
 import { InsuranceForm } from "./components/InsuranceForm";
 import { InsuranceCheck } from "./components/InsuranceCheck";
-// import { getGasPrice } from "./eth/app";
+import {
+  payPremium,
+  isActive,
+  claim,
+  setPremiumAmount,
+  setClaimAmount,
+  withdrawTokens,
+} from "./eth/app";
 
 function App() {
   const { account, connect, disconnect, web3 } = useWeb3();
   const [gasPriceTime, setGasPriceTime] = useState(0);
+  
 
   const [isAdmin, setIsAdmin] = useState(false);
 
