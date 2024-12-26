@@ -11,6 +11,8 @@ function App() {
   const { account, connect, disconnect, web3 } = useWeb3();
   const [gasPriceTime, setGasPriceTime] = useState(0);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   async function updateGasPriceTime() {
     if (web3) {
       try {
@@ -21,6 +23,10 @@ function App() {
         console.error("Failed to update gas price:", e);
       }
     }
+  }
+
+  function switchAdmin() {
+    setIsAdmin(!isAdmin);
   }
 
   return (
@@ -40,6 +46,7 @@ function App() {
             <Button onClick={updateGasPriceTime} colorScheme="purple">
               Update Gas Price
             </Button>
+            <Button onClick={switchAdmin}>Admin</Button>
           </>
         ) : (
           <Button onClick={connect} colorScheme="teal">
@@ -50,11 +57,16 @@ function App() {
       <HStack>
         <Box p={4} alignContent="center" width="lg">
           {/* Medical Checkup */}
-          <Text mb={4} fontWeight="bold">
-            Medical Checkup
-          </Text>
-          {/* Main Navigation Buttons */}
-          <MedicalForm></MedicalForm>
+          {isAdmin ? (
+            <>
+              <Text mb={4} fontWeight="bold">
+                Medical Checkup
+              </Text>
+              <MedicalForm></MedicalForm>
+            </>
+          ) : (
+            <></>
+          )}
         </Box>
         <Box p={4} w="lg">
           {/* Insurance */}
