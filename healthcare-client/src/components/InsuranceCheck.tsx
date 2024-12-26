@@ -3,14 +3,14 @@ import { Field } from "@/components/ui/field";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { isActive } from "@/eth/app";
-import { useWeb3 } from "@/hooks/useWeb3";
+import { useWeb3 } from "@/context/Web3Context";
 
 interface InsuranceCheckInputs {
   month: string;
 }
 
 export const InsuranceCheck = () => {
-  const { account, connect, disconnect, web3 } = useWeb3();
+  const { web3, account } = useWeb3();
   const [insuranceActive, setInsuranceActive] = useState(false);
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${(today.getMonth() + 1)
@@ -30,8 +30,23 @@ export const InsuranceCheck = () => {
   };
 
   async function updateInsuranceActive() {
-    if (web3 && account) {
-      setInsuranceActive(await isActive(web3, account, 2024, 12));
+    if (web3 && account && currentMonth) {
+      setInsuranceActive(
+        await isActive(
+          web3,
+          account,
+          currentMonth.split("-")[0] as unknown as number,
+          currentMonth.split("-")[1] as unknown as number
+        )
+      );
+    } else {
+      console.log(
+        "update insurance failed",
+        web3,
+        account,
+        currentMonth.split("-")[0] as unknown as number,
+        currentMonth.split("-")[1] as unknown as number
+      );
     }
   }
 
@@ -57,7 +72,12 @@ export const InsuranceCheck = () => {
           />
         </Field>
 
-        <Button type="submit" mt={4} colorScheme="green">
+        <Button
+          type="submit"
+          mt={4}
+          colorScheme="green"
+          onClick={updateInsuranceActive}
+        >
           Check Insurance
         </Button>
       </form>

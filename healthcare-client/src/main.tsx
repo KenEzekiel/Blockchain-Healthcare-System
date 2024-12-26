@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { MetaMaskProvider } from "@metamask/sdk-react";
 import { Provider } from "@/components/ui/provider";
+import { Web3Provider } from "./context/Web3Context.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -17,7 +18,9 @@ createRoot(document.getElementById("root")!).render(
       }}
     >
       <Provider>
-        <App />
+        <Web3Provider>
+          <App />
+        </Web3Provider>
       </Provider>
     </MetaMaskProvider>
   </StrictMode>

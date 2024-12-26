@@ -1,7 +1,7 @@
 import { Box, Text, Button, Stack, HStack, Container } from "@chakra-ui/react";
 import { useState } from "react";
 import "./App.css";
-import { useWeb3 } from "./hooks/useWeb3";
+import { Web3Provider, useWeb3 } from "./context/Web3Context";
 import { MedicalForm } from "./components/MedicalForm";
 import { InsuranceForm } from "./components/InsuranceForm";
 import { InsuranceCheck } from "./components/InsuranceCheck";
@@ -12,20 +12,20 @@ import {
   setPremiumAmount,
   setClaimAmount,
   withdrawTokens,
+  getGasPrice,
 } from "./eth/app";
 
 function App() {
   const { account, connect, disconnect, web3 } = useWeb3();
   const [gasPriceTime, setGasPriceTime] = useState(0);
-  
 
   const [isAdmin, setIsAdmin] = useState(false);
 
   async function updateGasPriceTime() {
     if (web3) {
       try {
-        // const price = await getGasPrice(web3);
-        const price = await web3.eth.getGasPrice();
+        const price = await getGasPrice(web3);
+        // const price = await web3.eth.getGasPrice();
         setGasPriceTime(Number(price) / 1_000_000_000);
       } catch (e) {
         console.error("Failed to update gas price:", e);
