@@ -16,9 +16,9 @@ const CombinedModule = buildModule("CombinedModule", (m) => {
   // Mint initial supply after deployment
   m.call(medicalToken, "mint", [initialOwner, INITIAL_SUPPLY]);
 
-  const premiumAmount = "1000000000000000000"; // 1 * 1e18
+  const premiumAmount = "100";
 
-  const claimAmount = "2000000000000000000"; // 2 * 1e18
+  const claimAmount = "200"; // 2 * 1e18
 
   const priceOracle = m.contract("PriceOracle", [premiumAmount, claimAmount]);
 

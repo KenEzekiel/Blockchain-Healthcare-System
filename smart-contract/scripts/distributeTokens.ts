@@ -2,10 +2,10 @@ const { ethers } = require("hardhat");
 
 async function distributeTokens() {
   const [owner] = await ethers.getSigners();
-  
+
   // Token contract address from your deployment
-  const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  
+  const TOKEN_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+
   // Get the deployed token contract
   const MedicalToken = await ethers.getContractFactory("MedicalToken");
   const medicalToken = MedicalToken.attach(TOKEN_ADDRESS);
@@ -20,28 +20,41 @@ async function distributeTokens() {
 
   console.log("Starting token distribution...");
   console.log("Owner address:", owner.address);
-  
+
   // Transfer 10,000 tokens to each of the next 10 accounts
   for (const recipient of recipients) {
-    //console.log(`Transferring ${ethers.formatEther(transferAmount)} tokens to ${recipient.address}`);
-    
+    console.log(
+      `Transferring ${ethers.formatEther(transferAmount)} tokens to ${
+        recipient.address
+      }`
+    );
+
     try {
-      const tx = await medicalToken.connect(owner).transfer(recipient.address, transferAmount);
+      const tx = await medicalToken
+        .connect(owner)
+        .transfer(recipient.address, transferAmount);
       await tx.wait();
-      
+
       // Verify the transfer
       const balance = await medicalToken.balanceOf(recipient.address);
       //console.log(`New balance of ${recipient.address}: ${ethers.formatEther(balance)} tokens`);
     } catch (err: any) {
-        console.error("Minting failed:", err?.message || "Unknown error occurred");
-        console.error("Full error:", err);
-        process.exit(1);
-      }
+      console.error(
+        "Minting failed:",
+        err?.message || "Unknown error occurred"
+      );
+      console.error("Full error:", err);
+      process.exit(1);
+    }
   }
 
   // Verify final owner balance
   const finalBalance = await medicalToken.balanceOf(owner.address);
-  console.log("\nFinal owner balance:", ethers.formatEther(finalBalance), "tokens");
+  console.log(
+    "\nFinal owner balance:",
+    ethers.formatEther(finalBalance),
+    "tokens"
+  );
 }
 
 distributeTokens()

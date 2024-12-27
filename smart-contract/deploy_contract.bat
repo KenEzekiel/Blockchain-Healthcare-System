@@ -10,5 +10,5 @@ call npx hardhat ignition deploy ./ignition/modules/MedrecAndInsurance.ts --netw
 
 echo Deployment complete!
 
-call npx hardhat run scripts/distributeTokens.ts --network localhost
+
 pause
