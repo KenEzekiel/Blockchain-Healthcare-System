@@ -26,7 +26,8 @@ contract Insurance {
         uint256 month,
         uint256 claimAmount,
         address indexed provider,
-        uint256 medrecIdentifier
+        uint256 nik,
+        uint256 recordIndex
     );
     event SetPremium(uint256 oldAmount, uint256 newAmount);
 
@@ -53,7 +54,11 @@ contract Insurance {
     }
 
     // CONSTRUCTOR
-    constructor(address _medicalTokenAddress, address _oracleAddress, address _medicalRecordContractAddress) {
+    constructor(
+        address _medicalTokenAddress,
+        address _oracleAddress,
+        address _medicalRecordContractAddress
+    ) {
         owner = msg.sender;
         medicalToken = IERC20(_medicalTokenAddress);
         priceOracle = IOracle(_oracleAddress);
@@ -109,6 +114,14 @@ contract Insurance {
         return _activeMonthYear[user][year][month];
     }
 
+    function changePaymentStatus(
+        string memory nik,
+        uint256 recordIndex,
+        bool isPaid
+    ) external {
+        medicalRecords.updateRecordPaymentStatus(nik, recordIndex, isPaid);
+    }
+
     /**
      * @dev Claim insurance for a specific (month, year). Requires the user to be active.
      * @param month The month for which the user wants to claim.
@@ -119,7 +132,8 @@ contract Insurance {
         uint256 year,
         uint256 month,
         address provider,
-        uint256 medrecIdentifier
+        uint256 nik,
+        uint256 recordIndex
     ) external {
         uint256 currentClaim = priceOracle.getClaimPrice();
         require(year > 0, "Year must be nonzero");
@@ -138,13 +152,16 @@ contract Insurance {
         bool success = medicalToken.transfer(provider, currentClaim);
         require(success, "Claim transfer failed");
 
+        changePaymentStatus(nik, recordIndex, true);
+
         emit Claimed(
             msg.sender,
             year,
             month,
             currentClaim,
             provider,
-            medrecIdentifier
+            nik,
+            recordIndex
         );
     }
 
@@ -181,7 +198,5 @@ contract Insurance {
         require(success, "Withdrawal failed");
     }
 
-    function changePaymentStatus(string memory nik, uint256 recordIndex, bool isPaid) external {
-        medicalRecords.updateRecordPaymentStatus(nik, recordIndex, isPaid);
-    }
+    
 }

@@ -16,11 +16,7 @@ export class MedicalRecordsModule {
   private contract: any;
   private secretKey: string;
 
-  constructor(
-    providerUrl: string,
-    contractAddress: string,
-    secretKey: string
-  ) {
+  constructor(providerUrl: string, contractAddress: string, secretKey: string) {
     this.web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
     this.contract = new this.web3.eth.Contract(
       MedicalRecordsABI,

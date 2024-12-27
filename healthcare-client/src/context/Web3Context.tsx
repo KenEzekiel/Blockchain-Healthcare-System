@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import Web3 from "web3";
 import { useSDK } from "@metamask/sdk-react";
+import { setupContractsEventListener } from "@/eth/app";
 
 // Define the context shape
 interface Web3ContextProps {
@@ -72,6 +73,8 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({
       setAccount(accounts[0]);
       const web3Instance = new Web3("http://127.0.0.1:8545");
       setWeb3(web3Instance);
+
+      setupContractsEventListener(web3Instance);
     } catch (e) {
       console.error("Connection error:", e);
     }

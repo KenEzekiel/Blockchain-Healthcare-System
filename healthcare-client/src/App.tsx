@@ -1,5 +1,5 @@
 import { Box, Text, Button, Stack, HStack, Container } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Web3Provider, useWeb3 } from "./context/Web3Context";
 import { MedicalForm } from "./components/MedicalForm";
@@ -13,7 +13,10 @@ import {
   setClaimAmount,
   withdrawTokens,
   getGasPrice,
+  setupContractsEventListener,
 } from "./eth/app";
+import { MedicalInsurance } from "./modules/MedicalInsurance";
+import { InsuranceClaim } from "./components/InsuranceClaim";
 
 function App() {
   const { account, connect, disconnect, web3 } = useWeb3();
@@ -84,6 +87,7 @@ function App() {
           <Stack>
             <InsuranceForm></InsuranceForm>
             <InsuranceCheck></InsuranceCheck>
+            <InsuranceClaim></InsuranceClaim>
           </Stack>
         </Box>
       </HStack>

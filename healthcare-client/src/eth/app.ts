@@ -2,21 +2,14 @@ import Web3 from "web3";
 import Insurance from "../abi/Insurance.json";
 import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
 import MedicalToken from "../abi/MedicalToken.json";
+import {
+  MedicalRecord,
+  MedicalRecordsModule,
+} from "@/modules/MedicalRecordsModule";
 
-const INSURANCE_CONTRACT_ADDRESS = "0x59b670e9fA9D0A427751Af201D676719a970857b";
-const MEDICAL_TOKEN_ADDRESS = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
-const MEDICAL_RECORD_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
-
-export async function getGasPrice(web3: Web3) {
-  try {
-    const gasPrice = await web3.eth.getGasPrice();
-    console.log("Current gas price:", gasPrice);
-    return gasPrice;
-  } catch (error) {
-    console.error("Error getting gas price:", error);
-    throw error;
-  }
-}
+const INSURANCE_CONTRACT_ADDRESS = "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F";
+const MEDICAL_TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const MEDICAL_RECORD_ADDRESS = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319";
 
 export function getInsuranceContract(web3: Web3) {
   try {
@@ -60,10 +53,18 @@ export function getTokenContract(web3: Web3) {
   }
 }
 
-export function setupContractsEventListener(
-  web3,
-  onEvent = (eventName, data) => {}
-) {
+export async function getGasPrice(web3: Web3) {
+  try {
+    const gasPrice = await web3.eth.getGasPrice();
+    console.log("Current gas price:", gasPrice);
+    return gasPrice;
+  } catch (error) {
+    console.error("Error getting gas price:", error);
+    throw error;
+  }
+}
+
+export function setupContractsEventListener(web3: Web3) {
   const insurance = getInsuranceContract(web3);
   const medrec = getMedRecContract(web3);
 
@@ -79,51 +80,27 @@ export function setupContractsEventListener(
 
   try {
     // Listen for PremiumPaid
-    insurance.events
-      .PremiumPaid({})
-      .on("data", (event) => {
-        console.log("PremiumPaid event received:", event);
-        // event.returnValues holds the arguments: user, year, month, amount
-        onEvent("PremiumPaid", event);
-      })
-      .on("error", (err) => {
-        console.error("Error in PremiumPaid listener:", err);
-      });
+    insurance.events.PremiumPaid({}).on("data", (event) => {
+      console.log("PremiumPaid event received:", event);
+      // event.returnValues holds the arguments: user, year, month, amount
+    });
 
     // Listen for Claimed (if desired)
-    insurance.events
-      .Claimed({})
-      .on("data", (event) => {
-        console.log("Claimed event received:", event);
-        // event.returnValues holds (user, year, month, claimAmount, provider, medrecIdentifier)
-        onEvent("Claimed", event);
-      })
-      .on("error", (err) => {
-        console.error("Error in Claimed listener:", err);
-      });
+    insurance.events.Claimed({}).on("data", (event) => {
+      console.log("Claimed event received:", event);
+      // event.returnValues holds (user, year, month, claimAmount, provider, medrecIdentifier)
+    });
 
     // Listen for SetPremium (if desired)
-    insurance.events
-      .SetPremium({})
-      .on("data", (event) => {
-        console.log("SetPremium event received:", event);
-        // event.returnValues holds (oldAmount, newAmount)
-        onEvent("SetPremium", event);
-      })
-      .on("error", (err) => {
-        console.error("Error in SetPremium listener:", err);
-      });
-    
-    medrec.events
-      .RecordAdded({})
-      .on("data", (event) => {
-        console.log("RecordAdded event received:", event);
-        // event.returnValues holds (nik, index, timestamp, isPaid)
-        onEvent("RecordAdded", event);
-      })
-      .on("error", (err) => {
-        console.error("Error in RecordAdded listener:", err);
-      });
+    insurance.events.SetPremium({}).on("data", (event) => {
+      console.log("SetPremium event received:", event);
+      // event.returnValues holds (oldAmount, newAmount)
+    });
+
+    medrec.events.RecordAdded({}).on("data", (event) => {
+      console.log("RecordAdded event received:", event);
+      // event.returnValues holds (nik, index, timestamp, isPaid)
+    });
     // If the MedRec contract also emits events, set them up similarly:
     // medrec.events.SomeEventName({})
     //   .on("data", ...)
@@ -197,7 +174,9 @@ export async function claim(
   web3: Web3,
   year: number,
   month: number,
-  provider: string
+  provider: string,
+  nik: string,
+  recordIndex: number
 ): Promise<unknown> {
   try {
     const insurance = getInsuranceContract(web3);
@@ -207,7 +186,7 @@ export async function claim(
     const fromAddress = accounts[0];
 
     const txReceipt = await insurance.methods
-      .claim(year, month, provider)
+      .claim(year, month, provider, nik, recordIndex)
       .send({ from: fromAddress });
 
     console.log("Claim successful. TX receipt:", txReceipt);
@@ -298,5 +277,68 @@ export async function withdrawTokens(
   } catch (error) {
     console.error("Error withdrawing tokens:", error);
     throw error;
+  }
+}
+
+export async function addMedrec(
+  web3: Web3,
+  tanggal: string,
+  penyediaLayanan: string,
+  nik: string,
+  nama: string,
+  diagnosa: string,
+  tindakan: string,
+  account: string
+) {
+  try {
+    const medrec = getMedRecContract(web3);
+    if (!medrec) throw new Error("Medical record contract not found");
+
+    const medrecModule = new MedicalRecordsModule(
+      "http://127.0.0.1:8545",
+      MEDICAL_RECORD_ADDRESS,
+      "password"
+    );
+
+    const medicalRecord: MedicalRecord = {
+      checkupDate: new Date(tanggal).toISOString(),
+      healthcareProvider: penyediaLayanan,
+      nik: nik,
+      name: nama,
+      diagnosis: diagnosa,
+      treatment: tindakan,
+    };
+
+    const recordIndex = await medrecModule.addRecord(
+      nik,
+      medicalRecord,
+      account
+    );
+
+    // Ensure the recordIndex is a valid number before returning it
+    if (recordIndex !== undefined && !isNaN(recordIndex)) {
+      return Number(recordIndex);
+    } else {
+      throw new Error("Record index not found in the transaction receipt.");
+    }
+  } catch (error) {
+    console.log("Failed adding medical record!", error);
+  }
+}
+
+export async function getMedRec(web3: Web3, nik: string) {
+  try {
+    const medrec = getMedRecContract(web3);
+    if (!medrec) throw new Error("Medical record contract not found");
+
+    const medrecModule = new MedicalRecordsModule(
+      "http://127.0.0.1:8545",
+      MEDICAL_RECORD_ADDRESS,
+      "password"
+    );
+
+    return medrecModule.getRecords(nik);
+  } catch (error) {
+    console.log("Failed getting medical record!", error);
   }
 }
