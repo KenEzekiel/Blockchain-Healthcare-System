@@ -15,7 +15,7 @@ contract MedicalRecords {
     mapping(string => Record[]) private recordsByNIK; 
     mapping(address => bool) public authorizedProviders;
 
-    event RecordAdded(string indexed nik, uint256 recordIndex, uint256 timestamp, bool isPaid);
+    event RecordAdded(uint256 recordIndex, uint256 timestamp, bool isPaid);
     event ProviderAuthorized(address indexed provider);
     event ProviderRemoved(address indexed provider);
     event RecordPaymentUpdated(string indexed nik, uint256 indexed recordIndex, bool isPaid);
@@ -62,7 +62,7 @@ contract MedicalRecords {
             isPaid: false // Default to unpaid when added
         }));
         
-        emit RecordAdded(nik, recordIndex, block.timestamp, false);
+        emit RecordAdded(recordIndex, block.timestamp, false);
     }
 
     function updateRecordPaymentStatus(string memory nik, uint256 recordIndex, bool isPaid) 

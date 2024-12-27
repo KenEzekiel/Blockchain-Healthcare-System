@@ -40,13 +40,33 @@ export class MedicalRecordsModule {
     return JSON.parse(decryptedString) as MedicalRecord;
   }
 
-  async addRecord(patientNIK: string, record: MedicalRecord, fromAddress: string): Promise<void> {
-    const encryptedData = this.encryptRecord(record);
-    const tx = await this.contract.methods
-      .addRecord(patientNIK, encryptedData)
-      .send({ from: fromAddress });
-
-    console.log(`Transaction hash: ${tx.transactionHash}`);
+  async addRecord(patientNIK: string, record: MedicalRecord, fromAddress: string): Promise<number> {
+    try {
+      const encryptedData = this.encryptRecord(record);
+  
+      const receipt = await this.contract.methods
+        .addRecord(patientNIK, encryptedData)
+        .send({ from: fromAddress });
+  
+      console.log('Transaction Receipt:', receipt);
+  
+      if (receipt.events && receipt.events.RecordAdded) {
+        const { recordIndex, timestamp, isPaid } = receipt.events.RecordAdded.returnValues;
+  
+        console.log(`Record added for NIK: ${patientNIK}`);
+        console.log(`Record index: ${recordIndex}`);
+        console.log(`Timestamp: ${new Date(Number(timestamp) * 1000).toISOString()}`);
+        console.log(`Is Paid: ${isPaid}`);
+  
+        return Number(recordIndex);
+      } else {
+        console.error("RecordAdded event not found in the receipt.");
+        return -1; 
+      }
+    } catch (error) {
+      console.error("Error sending transaction:", error);
+      throw error;
+    }
   }
 
   async getRecords(patientNIK: string): Promise<MedicalRecord[]> {

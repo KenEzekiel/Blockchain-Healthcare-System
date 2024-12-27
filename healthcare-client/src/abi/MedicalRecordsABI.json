@@ -1,189 +1,268 @@
 [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "ProviderAuthorized",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "ProviderRemoved",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "nik",
-          "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "timestamp",
-          "type": "uint256"
-        }
-      ],
-      "name": "RecordAdded",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "nik",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "encryptedData",
-          "type": "string"
-        }
-      ],
-      "name": "addRecord",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "admin",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "authorizeProvider",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "authorizedProviders",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "nik",
-          "type": "string"
-        }
-      ],
-      "name": "getRecordCount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "nik",
-          "type": "string"
-        }
-      ],
-      "name": "getRecords",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "encryptedData",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "provider",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct MedicalRecords.Record[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "removeProvider",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    }
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "name": "ProviderAuthorized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "name": "ProviderRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "recordIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPaid",
+        "type": "bool"
+      }
+    ],
+    "name": "RecordAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "nik",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "recordIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPaid",
+        "type": "bool"
+      }
+    ],
+    "name": "RecordPaymentUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "nik",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "encryptedData",
+        "type": "string"
+      }
+    ],
+    "name": "addRecord",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "allowedContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "name": "authorizeProvider",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "authorizedProviders",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "nik",
+        "type": "string"
+      }
+    ],
+    "name": "getRecordCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "nik",
+        "type": "string"
+      }
+    ],
+    "name": "getRecords",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "encryptedData",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "provider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPaid",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct MedicalRecords.Record[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "name": "removeProvider",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setAllowedContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "nik",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "recordIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPaid",
+        "type": "bool"
+      }
+    ],
+    "name": "updateRecordPaymentStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ]
