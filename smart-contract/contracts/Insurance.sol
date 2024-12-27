@@ -26,7 +26,7 @@ contract Insurance {
         uint256 month,
         uint256 claimAmount,
         address indexed provider,
-        uint256 nik,
+        string nik,
         uint256 recordIndex
     );
     event SetPremium(uint256 oldAmount, uint256 newAmount);
@@ -114,13 +114,13 @@ contract Insurance {
         return _activeMonthYear[user][year][month];
     }
 
-    function changePaymentStatus(
-        string memory nik,
-        uint256 recordIndex,
-        bool isPaid
-    ) external {
-        medicalRecords.updateRecordPaymentStatus(nik, recordIndex, isPaid);
-    }
+    // function changePaymentStatus(
+    //     string memory nik,
+    //     uint256 recordIndex,
+    //     bool isPaid
+    // ) external {
+    //     medicalRecords.updateRecordPaymentStatus(nik, recordIndex, isPaid);
+    // }
 
     /**
      * @dev Claim insurance for a specific (month, year). Requires the user to be active.
@@ -132,7 +132,7 @@ contract Insurance {
         uint256 year,
         uint256 month,
         address provider,
-        uint256 nik,
+        string memory nik,
         uint256 recordIndex
     ) external {
         uint256 currentClaim = priceOracle.getClaimPrice();
@@ -152,7 +152,7 @@ contract Insurance {
         bool success = medicalToken.transfer(provider, currentClaim);
         require(success, "Claim transfer failed");
 
-
+        medicalRecords.updateRecordPaymentStatus(nik, recordIndex, true);
 
         emit Claimed(
             msg.sender,
@@ -197,6 +197,4 @@ contract Insurance {
         bool success = medicalToken.transfer(msg.sender, amount);
         require(success, "Withdrawal failed");
     }
-
-    
 }
