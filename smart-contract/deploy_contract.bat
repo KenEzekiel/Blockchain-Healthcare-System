@@ -11,4 +11,6 @@ call npx hardhat ignition deploy ./ignition/modules/MedrecAndInsurance.ts --netw
 call npx hardhat ignition deploy ./ignition/modules/PriceOracle.ts --network localhost --parameters ./ignition/parameters/localhost.json
 
 echo Deployment complete!
+
+call npx hardhat run scripts/distributeTokens.ts --network localhost
 pause
