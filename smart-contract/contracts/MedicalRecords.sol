@@ -3,21 +3,24 @@ pragma solidity ^0.8.27;
 
 contract MedicalRecords {
     address public admin;
+    address public allowedContract; // Whitelisted contract address
 
     struct Record {
-       string encryptedData;
-       address provider;
-       uint256 timestamp;
+        string encryptedData;
+        address provider;
+        uint256 timestamp;
+        bool isPaid; // Flag to track payment status
     }
 
     mapping(string => Record[]) private recordsByNIK; 
     mapping(address => bool) public authorizedProviders;
 
-    event RecordAdded(string indexed nik, address indexed provider, uint256 timestamp);
+    event RecordAdded(string indexed nik, address indexed provider, uint256 timestamp, bool isPaid);
     event ProviderAuthorized(address indexed provider);
     event ProviderRemoved(address indexed provider);
+    event RecordPaymentUpdated(string indexed nik, uint256 indexed recordIndex, bool isPaid);
 
-     modifier onlyAdmin() {
+    modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");
         _;
     }
@@ -27,8 +30,17 @@ contract MedicalRecords {
         _;
     }
 
+    modifier onlyAllowedContract() {
+        require(msg.sender == allowedContract, "Caller is not the allowed contract");
+        _;
+    }
+
     constructor() {
         admin = msg.sender;
+    }
+
+    function setAllowedContract(address contractAddress) external onlyAdmin {
+        allowedContract = contractAddress;
     }
 
     function authorizeProvider(address provider) public onlyAdmin {
@@ -45,10 +57,21 @@ contract MedicalRecords {
         recordsByNIK[nik].push(Record({
             encryptedData: encryptedData,
             provider: msg.sender,
-            timestamp: block.timestamp
+            timestamp: block.timestamp,
+            isPaid: false // Default to unpaid when added
         }));
 
-        emit RecordAdded(nik, msg.sender, block.timestamp);
+        emit RecordAdded(nik, msg.sender, block.timestamp, false);
+    }
+
+    function updateRecordPaymentStatus(string memory nik, uint256 recordIndex, bool isPaid) 
+        public 
+        onlyAllowedContract 
+    {
+        require(recordIndex < recordsByNIK[nik].length, "Invalid record index");
+        recordsByNIK[nik][recordIndex].isPaid = isPaid;
+
+        emit RecordPaymentUpdated(nik, recordIndex, isPaid);
     }
 
     function getRecords(string memory nik) public view onlyAuthorizedProvider returns (Record[] memory) {
