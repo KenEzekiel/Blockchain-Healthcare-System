@@ -36,28 +36,35 @@ export class MedicalRecordsModule {
     return JSON.parse(decryptedString) as MedicalRecord;
   }
 
-  async addRecord(patientNIK: string, record: MedicalRecord, fromAddress: string): Promise<number> {
+  async addRecord(
+    patientNIK: string,
+    record: MedicalRecord,
+    fromAddress: string
+  ): Promise<number> {
     try {
       const encryptedData = this.encryptRecord(record);
-  
+
       const receipt = await this.contract.methods
         .addRecord(patientNIK, encryptedData)
         .send({ from: fromAddress });
-  
-      console.log('Transaction Receipt:', receipt);
-  
+
+      console.log("Transaction Receipt:", receipt);
+
       if (receipt.events && receipt.events.RecordAdded) {
-        const { recordIndex, timestamp, isPaid } = receipt.events.RecordAdded.returnValues;
-  
+        const { recordIndex, timestamp, isPaid } =
+          receipt.events.RecordAdded.returnValues;
+
         console.log(`Record added for NIK: ${patientNIK}`);
         console.log(`Record index: ${recordIndex}`);
-        console.log(`Timestamp: ${new Date(Number(timestamp) * 1000).toISOString()}`);
+        console.log(
+          `Timestamp: ${new Date(Number(timestamp) * 1000).toISOString()}`
+        );
         console.log(`Is Paid: ${isPaid}`);
-  
+
         return Number(recordIndex);
       } else {
         console.error("RecordAdded event not found in the receipt.");
-        return -1; 
+        return -1;
       }
     } catch (error) {
       console.error("Error sending transaction:", error);
@@ -67,8 +74,16 @@ export class MedicalRecordsModule {
 
   async getRecords(patientNIK: string): Promise<MedicalRecord[]> {
     const records = await this.contract.methods.getRecords(patientNIK).call();
-    return records.map((record: { encryptedData: string }) =>
-      this.decryptRecord(record.encryptedData)
-    );
+    return records.map((record: any) => {
+      const decryptedData = this.decryptRecord(record.encryptedData);
+
+      // Spread the decrypted data into the returned object along with the other fields
+      return {
+        ...decryptedData, // Spread the decrypted data (this will merge the decrypted fields)
+        provider: record.provider, // Include provider
+        timestamp: record.timestamp, // Include timestamp
+        isPaid: record.isPaid, // Include isPaid
+      };
+    });
   }
 }

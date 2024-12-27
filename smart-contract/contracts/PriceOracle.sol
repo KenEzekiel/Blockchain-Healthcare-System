@@ -2,12 +2,15 @@
 pragma solidity ^0.8.0;
 
 contract PriceOracle {
-    uint256 public premiumPrice; 
-    uint256 public claimPrice; 
+    uint256 public premiumPrice;
+    uint256 public claimPrice;
     address public owner;
 
     event PremiumUpdated(uint256 oldData, uint256 newData);
     event ClaimUpdated(uint256 oldData, uint256 newData);
+
+    // event GetPremiumPrice(uint256 price);
+    // event GetClaimPrice(uint256 price);
 
     constructor(uint256 initialPremiumPrice, uint256 initialClaimPrice) {
         premiumPrice = initialPremiumPrice;
@@ -17,10 +20,12 @@ contract PriceOracle {
 
     // Function to get the external data (this is like an oracle feed)
     function getPremiumPrice() external view returns (uint256) {
+        // emit GetPremiumPrice(premiumPrice);
         return premiumPrice;
     }
 
     function getClaimPrice() external view returns (uint256) {
+        // emit GetClaimPrice(claimPrice);
         return claimPrice;
     }
 
@@ -39,6 +44,6 @@ contract PriceOracle {
         emit PremiumUpdated(oldClaim, claimPrice);
     }
 
-    // Function to receive Ether 
+    // Function to receive Ether
     receive() external payable {}
 }

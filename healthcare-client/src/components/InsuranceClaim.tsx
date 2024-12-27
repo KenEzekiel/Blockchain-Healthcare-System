@@ -40,8 +40,8 @@ export const InsuranceClaim = () => {
     const isInsuranceActive = await isActive(
       web3!,
       account!,
-      selectedRecord.checkupDate.split("-")[1] as unknown as number,
-      selectedRecord.checkupDate.split("-")[0] as unknown as number
+      selectedRecord.checkupDate.split("-")[0] as unknown as number,
+      selectedRecord.checkupDate.split("-")[1] as unknown as number
     );
 
     if (isInsuranceActive) {
@@ -73,6 +73,7 @@ export const InsuranceClaim = () => {
     if (!account) return;
 
     const nik = accountMapping[account!];
+    console.log("nik", nik);
     // Fetch medical records for the given NIK
     const records = getMedRec(web3!, nik);
 
@@ -85,10 +86,12 @@ export const InsuranceClaim = () => {
       .catch((error) => {
         console.error("Failed to fetch medical records:", error);
       });
+    console.log(records);
   };
 
   // Handle selecting a medical record
-  const handleSelectRecord = (record: any) => {
+  const handleSelectRecord = (record: any, index: number) => {
+    record.recordIndex = index;
     setSelectedRecord(record); // Set the selected record in state
     toaster.create({
       title: "Record Selected",
@@ -123,10 +126,12 @@ export const InsuranceClaim = () => {
                   <Text>Diagnosis: {record.diagnosis}</Text>
                   <Text>Treatment: {record.treatment}</Text>
                   <Text>Checkup Date: {record.checkupDate}</Text>
+                  <Text>Provider: {record.provider}</Text>
+                  <Text>Payment: {record.isPaid ? "TRUE" : "FALSE"}</Text>
                   <Button
                     colorScheme="teal"
                     size="sm"
-                    onClick={() => handleSelectRecord(record)}
+                    onClick={() => handleSelectRecord(record, index)}
                   >
                     Select this Record
                   </Button>

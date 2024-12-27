@@ -3,7 +3,13 @@ import { Stack, Input, Button } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useWeb3 } from "@/context/Web3Context";
-import { payPremium } from "@/eth/app";
+import {
+  getPremiumAmount,
+  getTokenBalance,
+  getTokenContract,
+  INSURANCE_CONTRACT_ADDRESS,
+  payPremium,
+} from "@/eth/app";
 
 interface InsuranceFormInputs {
   month: string;
@@ -20,6 +26,22 @@ export const InsuranceForm = () => {
 
   async function submitPayment() {
     if (web3 && account && currentMonth) {
+      const tokenContract = getTokenContract(web3);
+
+      const premiumAmount = await getPremiumAmount(web3);
+
+      const balance = await getTokenBalance(web3, account);
+      console.log(premiumAmount, account, balance);
+
+      await tokenContract!.methods
+        .approve(INSURANCE_CONTRACT_ADDRESS, premiumAmount * 100)
+        .send({ from: account });
+
+      const allowance = await tokenContract!.methods
+        .allowance(account, INSURANCE_CONTRACT_ADDRESS)
+        .call();
+
+      console.log("allowance", allowance);
       payPremium(
         web3,
         currentMonth.split("-")[1] as unknown as number,

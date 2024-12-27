@@ -2,14 +2,19 @@ import Web3 from "web3";
 import Insurance from "../abi/Insurance.json";
 import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
 import MedicalToken from "../abi/MedicalToken.json";
+import PriceOracle from "../abi/PriceOracle.json";
 import {
   MedicalRecord,
   MedicalRecordsModule,
 } from "@/modules/MedicalRecordsModule";
 
-const INSURANCE_CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
-const MEDICAL_TOKEN_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const MEDICAL_RECORD_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const INSURANCE_CONTRACT_ADDRESS =
+  "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+export const MEDICAL_TOKEN_ADDRESS =
+  "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+export const MEDICAL_RECORD_ADDRESS =
+  "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const ORACLE_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 export function getInsuranceContract(web3: Web3) {
   try {
@@ -49,6 +54,20 @@ export function getTokenContract(web3: Web3) {
     return tokenContract;
   } catch (error) {
     console.error("Error creating medical token contract instance:", error);
+    return null;
+  }
+}
+
+export function getOracleContract(web3: Web3) {
+  try {
+    const oracleContract = new web3.eth.Contract(
+      PriceOracle.abi,
+      ORACLE_ADDRESS
+    );
+    console.log("oracle contract instance created:", oracleContract);
+    return oracleContract;
+  } catch (error) {
+    console.error("Error creating oracle contract instance:", error);
     return null;
   }
 }
@@ -153,6 +172,7 @@ export async function isActive(
     const insurance = getInsuranceContract(web3);
     if (!insurance) throw new Error("Insurance contract not found");
 
+    console.log(`Checking user insurance for ${user} ${year} month ${month}`);
     const active: boolean = await insurance.methods
       .isActive(user, year, month)
       .call();
@@ -184,6 +204,8 @@ export async function claim(
 
     const accounts = await web3.eth.getAccounts();
     const fromAddress = accounts[0];
+
+    console.log(year, month, provider, nik, recordIndex);
 
     const txReceipt = await insurance.methods
       .claim(year, month, provider, nik, recordIndex)
@@ -221,6 +243,22 @@ export async function setPremiumAmount(
     return txReceipt;
   } catch (error) {
     console.error("Error setting premium amount:", error);
+    throw error;
+  }
+}
+
+export async function getPremiumAmount(web3: Web3) {
+  try {
+    const oracle = getOracleContract(web3);
+    if (!oracle) throw new Error("Oracle contract not found");
+
+    const premiumPrice = await oracle.methods.getPremiumPrice().call();
+
+    console.log("Premium Price:", premiumPrice);
+
+    return Number(premiumPrice); // Return as a number
+  } catch (error) {
+    console.error("Error getting premium amount:", error);
     throw error;
   }
 }
@@ -340,5 +378,23 @@ export async function getMedRec(web3: Web3, nik: string) {
     return medrecModule.getRecords(nik);
   } catch (error) {
     console.log("Failed getting medical record!", error);
+  }
+}
+
+export async function getTokenBalance(web3: Web3, account: string) {
+  try {
+    // Initialize the token contract
+    const tokenContract = getTokenContract(web3);
+
+    // Call the balanceOf function
+    const balanceWei = await tokenContract!.methods.balanceOf(account).call();
+
+    // Convert the balance to a human-readable format (if your token uses 18 decimals)
+    const balance = web3.utils.fromWei(balanceWei, "ether"); // Assuming the token uses 18 decimals
+
+    console.log(`Balance of account ${account}: ${balance} tokens`);
+    return balance;
+  } catch (error) {
+    console.error("Error getting token balance:", error);
   }
 }
