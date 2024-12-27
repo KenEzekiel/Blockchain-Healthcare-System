@@ -9,6 +9,7 @@ echo Deploying Contract to localhost...
 call npx hardhat ignition deploy ./ignition/modules/Insurance.ts --network localhost
 call npx hardhat ignition deploy ./ignition/modules/MedicalToken.ts --network localhost
 call npx hardhat ignition deploy ./ignition/modules/MedicalRecords.ts --network localhost --parameters ./ignition/parameters/localhost.json
+call npx hardhat ignition deploy ./ignition/modules/PriceOracle.ts --network localhost --parameters ./ignition/parameters/localhost.json
 
 
 echo Deployment complete!
