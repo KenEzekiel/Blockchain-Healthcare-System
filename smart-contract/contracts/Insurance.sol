@@ -3,6 +3,8 @@ pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./MedicalRecords.sol";
+
 interface IOracle {
     function getPremiumPrice() external view returns (uint256);
 
@@ -29,7 +31,7 @@ contract Insurance {
     event SetPremium(uint256 oldAmount, uint256 newAmount);
 
     // STORAGE
-
+    MedicalRecords medicalRecords;
     IERC20 public medicalToken;
     IOracle public priceOracle;
 
@@ -51,10 +53,11 @@ contract Insurance {
     }
 
     // CONSTRUCTOR
-    constructor(address _medicalTokenAddress, address _oracleAddress) {
+    constructor(address _medicalTokenAddress, address _oracleAddress, address _medicalRecordContractAddress) {
         owner = msg.sender;
         medicalToken = IERC20(_medicalTokenAddress);
         priceOracle = IOracle(_oracleAddress);
+        medicalRecords = MedicalRecords(_medicalRecordContractAddress);
     }
 
     // PUBLIC FUNCTIONS
@@ -176,5 +179,9 @@ contract Insurance {
 
         bool success = medicalToken.transfer(msg.sender, amount);
         require(success, "Withdrawal failed");
+    }
+
+    function changePaymentStatus(string memory nik, uint256 recordIndex, bool isPaid) external {
+        medicalRecords.updateRecordPaymentStatus(nik, recordIndex, isPaid);
     }
 }
