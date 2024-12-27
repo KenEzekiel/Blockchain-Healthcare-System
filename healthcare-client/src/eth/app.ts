@@ -113,7 +113,17 @@ export function setupContractsEventListener(
       .on("error", (err) => {
         console.error("Error in SetPremium listener:", err);
       });
-
+    
+    medrec.events
+      .RecordAdded({})
+      .on("data", (event) => {
+        console.log("RecordAdded event received:", event);
+        // event.returnValues holds (nik, index, timestamp, isPaid)
+        onEvent("RecordAdded", event);
+      })
+      .on("error", (err) => {
+        console.error("Error in RecordAdded listener:", err);
+      });
     // If the MedRec contract also emits events, set them up similarly:
     // medrec.events.SomeEventName({})
     //   .on("data", ...)

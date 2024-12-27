@@ -61,7 +61,7 @@ contract MedicalRecords {
             timestamp: block.timestamp,
             isPaid: false // Default to unpaid when added
         }));
-
+        
         emit RecordAdded(nik, recordIndex, block.timestamp, false);
     }
 
