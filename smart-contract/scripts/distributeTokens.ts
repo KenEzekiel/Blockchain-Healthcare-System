@@ -1,71 +1,52 @@
 const { ethers } = require("hardhat");
 
-async function main() {
-  // Get signers (accounts)
-  const [owner, ...otherAccounts] = await ethers.getSigners();
+async function distributeTokens() {
+  const [owner] = await ethers.getSigners();
   
-  // Deploy the token contract
-  console.log("Deploying MedicalToken...");
+  // Token contract address from your deployment
+  const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  
+  // Get the deployed token contract
   const MedicalToken = await ethers.getContractFactory("MedicalToken");
-  const medicalToken = await MedicalToken.deploy(owner.address);
-  await medicalToken.waitForDeployment();
-  
-  const deployedAddress = await medicalToken.getAddress();
-  console.log("MedicalToken deployed to:", deployedAddress);
-
-  // Mint initial supply to owner (1 million tokens)
-  const initialSupply = ethers.parseEther("1000000");
-  console.log("\nMinting tokens to owner...");
-  try {
-    const mintTx = await medicalToken.connect(owner).mint(owner.address, initialSupply);
-    await mintTx.wait();
-    console.log(`Minted ${ethers.formatEther(initialSupply)} tokens to owner`);
-  } catch (err: any) {
-    console.error("Minting failed:", err?.message || "Unknown error occurred");
-    process.exit(1);
-  }
-
-  // Verify owner's balance after minting
-  const ownerInitialBalance = await medicalToken.balanceOf(owner.address);
-  console.log("Owner's initial balance:", ethers.formatEther(ownerInitialBalance), "tokens");
+  const medicalToken = MedicalToken.attach(TOKEN_ADDRESS);
 
   // Amount to transfer to each account (10,000 tokens with 18 decimals)
   const transferAmount = ethers.parseEther("10000");
 
+  // Get all signers (accounts)
+  const signers = await ethers.getSigners();
+  // Remove the first signer (owner) and take the next 10
+  const recipients = signers.slice(1, 11);
+
+  console.log("Starting token distribution...");
+  console.log("Owner address:", owner.address);
+  
   // Transfer 10,000 tokens to each of the next 10 accounts
-  console.log("\nDistributing tokens...");
-  for (let i = 0; i < 10 && i < otherAccounts.length; i++) {
-    const recipientAddress = otherAccounts[i].address;
-    console.log(`Transferring ${ethers.formatEther(transferAmount)} tokens to ${recipientAddress}`);
+  for (const recipient of recipients) {
+    //console.log(`Transferring ${ethers.formatEther(transferAmount)} tokens to ${recipient.address}`);
     
     try {
-      const tx = await medicalToken.connect(owner).transfer(recipientAddress, transferAmount);
+      const tx = await medicalToken.connect(owner).transfer(recipient.address, transferAmount);
       await tx.wait();
       
       // Verify the transfer
-      const balance = await medicalToken.balanceOf(recipientAddress);
-      console.log(`New balance of ${recipientAddress}: ${ethers.formatEther(balance)} tokens`);
+      const balance = await medicalToken.balanceOf(recipient.address);
+      //console.log(`New balance of ${recipient.address}: ${ethers.formatEther(balance)} tokens`);
     } catch (err: any) {
-      if (err?.message) {
-        console.error(`Failed to transfer to ${recipientAddress}:`, err.message);
-      } else {
-        console.error(`Failed to transfer to ${recipientAddress}:`, 'Unknown error occurred');
+        console.error("Minting failed:", err?.message || "Unknown error occurred");
+        console.error("Full error:", err);
+        process.exit(1);
       }
-    }
   }
 
-  // Log final owner balance
-  const ownerFinalBalance = await medicalToken.balanceOf(owner.address);
-  console.log("\nFinal owner balance:", ethers.formatEther(ownerFinalBalance), "tokens");
+  // Verify final owner balance
+  const finalBalance = await medicalToken.balanceOf(owner.address);
+  console.log("\nFinal owner balance:", ethers.formatEther(finalBalance), "tokens");
 }
 
-main()
+distributeTokens()
   .then(() => process.exit(0))
-  .catch((err: any) => {
-    if (err?.message) {
-      console.error(err.message);
-    } else {
-      console.error('Unknown error occurred');
-    }
+  .catch((error) => {
+    console.error(error);
     process.exit(1);
   });

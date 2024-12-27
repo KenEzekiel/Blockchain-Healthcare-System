@@ -152,7 +152,7 @@ contract Insurance {
         bool success = medicalToken.transfer(provider, currentClaim);
         require(success, "Claim transfer failed");
 
-        changePaymentStatus(nik, recordIndex, true);
+
 
         emit Claimed(
             msg.sender,
