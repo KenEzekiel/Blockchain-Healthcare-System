@@ -3,6 +3,12 @@ pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IOracle {
+    function getPremiumPrice() external view returns (uint256);
+
+    function getClaimPrice() external view returns (uint256);
+}
+
 contract Insurance {
     // EVENTS
 
@@ -25,19 +31,15 @@ contract Insurance {
     // STORAGE
 
     IERC20 public medicalToken;
+    IOracle public priceOracle;
 
-    // Premium in terms of your token’s smallest unit. (wei-like)
-    // For example, if the MedicalToken has 18 decimals,
-    // then "1 * 10^18" represents 1 token.
-    uint256 public premiumAmount;
+    uint256 public premiumAmount; // Premium amount, set by oracle
+    uint256 public claimAmount; // Claim amount, set by oracle
 
     // Store active months per user in a mapping:
     // userAddress => (month => bool)
     mapping(address => mapping(uint256 => mapping(uint256 => bool)))
         private _activeMonthYear;
-
-    // For demonstration, define a fixed claim amount (in tokens).
-    uint256 public claimAmount;
 
     // Owner of the contract
     address public owner;
@@ -49,15 +51,10 @@ contract Insurance {
     }
 
     // CONSTRUCTOR
-    constructor(
-        address _medicalTokenAddress,
-        uint256 _premiumAmount,
-        uint256 _claimAmount
-    ) {
+    constructor(address _medicalTokenAddress, address _oracleAddress) {
         owner = msg.sender;
         medicalToken = IERC20(_medicalTokenAddress);
-        premiumAmount = _premiumAmount;
-        claimAmount = _claimAmount;
+        priceOracle = IOracle(_oracleAddress);
     }
 
     // PUBLIC FUNCTIONS
@@ -68,14 +65,15 @@ contract Insurance {
      * @param year  The year for which the user is paying the premium (e.g. 2024).
      */
     function payPremium(uint256 month, uint256 year) external {
+        uint256 currentPremium = priceOracle.getPremiumPrice();
         require(month >= 1 && month <= 12, "Month must be 1-12");
         require(year > 0, "Year must be nonzero");
         require(
-            medicalToken.balanceOf(msg.sender) >= premiumAmount,
+            medicalToken.balanceOf(msg.sender) >= currentPremium,
             "Insufficient token balance"
         );
         require(
-            medicalToken.allowance(msg.sender, address(this)) >= premiumAmount,
+            medicalToken.allowance(msg.sender, address(this)) >= currentPremium,
             "Insufficient token allowance"
         );
 
@@ -83,14 +81,14 @@ contract Insurance {
         bool success = medicalToken.transferFrom(
             msg.sender,
             address(this),
-            premiumAmount
+            currentPremium
         );
         require(success, "Token transfer failed");
 
         // Mark user as active for this (year, month)
         _activeMonthYear[msg.sender][year][month] = true;
 
-        emit PremiumPaid(msg.sender, year, month, premiumAmount);
+        emit PremiumPaid(msg.sender, year, month, currentPremium);
     }
 
     /**
@@ -114,7 +112,13 @@ contract Insurance {
      * @param year  The year for which the user wants to claim.
      * @param provider The health provider that will receive the payment from the claim
      */
-    function claim(uint256 year, uint256 month, address provider) external {
+    function claim(
+        uint256 year,
+        uint256 month,
+        address provider,
+        uint256 medrecIdentifier
+    ) external {
+        uint256 currentClaim = priceOracle.getClaimPrice();
         require(year > 0, "Year must be nonzero");
         require(month >= 1 && month <= 12, "Month must be 1-12");
         require(
@@ -124,14 +128,21 @@ contract Insurance {
 
         // Check if contract has enough tokens to pay out the claim.
         require(
-            medicalToken.balanceOf(address(this)) >= claimAmount,
+            medicalToken.balanceOf(address(this)) >= currentClaim,
             "Insufficient contract token balance"
         );
 
-        bool success = medicalToken.transfer(provider, claimAmount);
+        bool success = medicalToken.transfer(provider, currentClaim);
         require(success, "Claim transfer failed");
 
-        emit Claimed(msg.sender, year, month, claimAmount, provider, 1);
+        emit Claimed(
+            msg.sender,
+            year,
+            month,
+            currentClaim,
+            provider,
+            medrecIdentifier
+        );
     }
 
     // ADMIN FUNCTIONS

@@ -8,14 +8,13 @@ const Insurance = buildModule("InsuranceModule", (m) => {
     "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
   );
 
-  const premiumAmount = "1000000000000000000"; // 1 * 1e18
-
-  const claimAmount = "2000000000000000000"; // 2 * 1e18
+  const oracleAddress = ethers.getAddress(
+    "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1"
+  );
 
   const insurance = m.contract("Insurance", [
     medicalTokenAddress,
-    premiumAmount,
-    claimAmount,
+    oracleAddress,
   ]);
 
   return { insurance };

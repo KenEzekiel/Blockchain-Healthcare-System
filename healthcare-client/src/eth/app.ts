@@ -3,7 +3,7 @@ import Insurance from "../abi/Insurance.json";
 import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
 import MedicalToken from "../abi/MedicalToken.json";
 
-const INSURANCE_CONTRACT_ADDRESS = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+const INSURANCE_CONTRACT_ADDRESS = "0x59b670e9fA9D0A427751Af201D676719a970857b";
 const MEDICAL_TOKEN_ADDRESS = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
 const MEDICAL_RECORD_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
 
