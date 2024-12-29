@@ -45,12 +45,12 @@ contract MedicalRecords {
         allowedContract = contractAddress;
     }
 
-    function authorizeProvider(address provider) public onlyAdmin {
+    function authorizeProvider(address provider) external onlyAdmin {
         authorizedProviders[provider] = true;
         emit ProviderAuthorized(provider);
     }
 
-    function removeProvider(address provider) public onlyAdmin {
+    function removeProvider(address provider) external onlyAdmin {
         authorizedProviders[provider] = false;
         emit ProviderRemoved(provider);
     }
