@@ -5,10 +5,15 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "OnlyAdmin",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "provider",
         "type": "address"
@@ -21,7 +26,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "provider",
         "type": "address"
@@ -35,9 +40,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "recordIndex",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -59,16 +64,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "string",
+        "indexed": false,
+        "internalType": "uint64",
         "name": "nik",
-        "type": "string"
+        "type": "uint64"
       },
       {
-        "indexed": true,
-        "internalType": "uint256",
+        "indexed": false,
+        "internalType": "uint16",
         "name": "recordIndex",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -83,9 +88,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint64",
         "name": "nik",
-        "type": "string"
+        "type": "uint64"
       },
       {
         "internalType": "string",
@@ -159,9 +164,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint64",
         "name": "nik",
-        "type": "string"
+        "type": "uint64"
       }
     ],
     "name": "getRecordCount",
@@ -178,9 +183,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint64",
         "name": "nik",
-        "type": "string"
+        "type": "uint64"
       }
     ],
     "name": "getRecords",
@@ -245,14 +250,14 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint64",
         "name": "nik",
-        "type": "string"
+        "type": "uint64"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "recordIndex",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
         "internalType": "bool",

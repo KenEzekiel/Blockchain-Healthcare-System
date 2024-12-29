@@ -3,10 +3,6 @@ import Insurance from "../abi/Insurance.json";
 import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
 import MedicalToken from "../abi/MedicalToken.json";
 import PriceOracle from "../abi/PriceOracle.json";
-import {
-  MedicalRecord,
-  MedicalRecordsModule,
-} from "@/modules/MedicalRecordsModule";
 
 export const INSURANCE_CONTRACT_ADDRESS =
   "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
@@ -136,7 +132,8 @@ export function setupContractsEventListener(web3: Web3) {
 export async function payPremium(
   web3: Web3,
   month: number,
-  year: number
+  year: number,
+  nik: number
 ): Promise<unknown> {
   try {
     const insurance = getInsuranceContract(web3);
@@ -147,7 +144,7 @@ export async function payPremium(
 
     // Send the transaction
     const txReceipt = await insurance.methods
-      .payPremium(month, year)
+      .payPremium(nik.toString(), month, year)
       .send({ from: fromAddress });
 
     console.log("Premium paid. TX receipt:", txReceipt);
@@ -164,7 +161,7 @@ export async function payPremium(
  */
 export async function isActive(
   web3: Web3,
-  user: string,
+  nik: number,
   year: number,
   month: number
 ): Promise<boolean> {
@@ -172,9 +169,9 @@ export async function isActive(
     const insurance = getInsuranceContract(web3);
     if (!insurance) throw new Error("Insurance contract not found");
 
-    console.log(`Checking user insurance for ${user} ${year} month ${month}`);
+    console.log(`Checking user insurance for ${nik} ${year} month ${month}`);
     const active: boolean = await insurance.methods
-      .isActive(user, year, month)
+      .isActive(nik.toString(), year, month)
       .call();
 
     console.log("Is active?", active);
@@ -324,7 +321,7 @@ export async function getTokenBalance(web3: Web3, account: string) {
     const tokenContract = getTokenContract(web3);
 
     // Call the balanceOf function
-    const balanceWei = await tokenContract!.methods.balanceOf(account).call();
+    const balanceWei = await tokenContract!.methods.balanceOf(account).call() as any;
 
     // Convert the balance to a human-readable format (if your token uses 18 decimals)
     const balance = web3.utils.fromWei(balanceWei, "ether"); // Assuming the token uses 18 decimals

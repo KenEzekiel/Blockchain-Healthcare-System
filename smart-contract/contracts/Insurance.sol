@@ -41,7 +41,7 @@ contract Insurance {
 
     // Store active months per user in a mapping:
     // userAddress => (month => bool)
-    mapping(address => mapping(uint256 => mapping(uint256 => bool)))
+    mapping(uint64 => mapping(uint256 => mapping(uint256 => bool)))
         private _activeMonthYear;
 
     // Owner of the contract
@@ -72,7 +72,11 @@ contract Insurance {
      * @param month The month for which the user is paying the premium (1-12).
      * @param year  The year for which the user is paying the premium (e.g. 2024).
      */
-    function payPremium(uint256 month, uint256 year) external {
+    function payPremium(
+        uint64 nik,
+        uint256 month, 
+        uint256 year
+    ) external {
         uint256 currentPremium = priceOracle.getPremiumPrice();
         require(month >= 1 && month <= 12, "Month must be 1-12");
         require(year > 0, "Year must be nonzero");
@@ -86,7 +90,7 @@ contract Insurance {
         );
 
         // Mark user as active for this (year, month)
-        _activeMonthYear[msg.sender][year][month] = true;
+        _activeMonthYear[nik][year][month] = true;
         emit PremiumPaid(msg.sender, year, month, currentPremium);
 
         // Transfer tokens from user to contract
@@ -98,19 +102,12 @@ contract Insurance {
         require(success, "Token transfer failed");
     }
 
-    /**
-     * @dev Check if a user is active in a given (month, year).
-     * @param user  Address of the user to check.
-     * @param month Month to check (1-12).
-     * @param year  Year to check.
-     * @return Boolean indicating whether the user is active for (month, year).
-     */
     function isActive(
-        address user,
+        uint64 nik,
         uint256 year,
         uint256 month
     ) external view returns (bool) {
-        return _activeMonthYear[user][year][month];
+        return _activeMonthYear[nik][year][month];
     }
 
     // function changePaymentStatus(
@@ -138,7 +135,7 @@ contract Insurance {
         require(year > 0, "Year must be nonzero");
         require(month >= 1 && month <= 12, "Month must be 1-12");
         require(
-            _activeMonthYear[msg.sender][year][month],
+            _activeMonthYear[nik][year][month],
             "Not active for this month/year"
         );
 

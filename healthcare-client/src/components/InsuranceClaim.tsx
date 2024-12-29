@@ -1,34 +1,15 @@
+import { Field } from "@/components/ui/field";
+import { toaster } from "@/components/ui/toaster";
 import { useWeb3 } from "@/context/Web3Context";
 import { claim, isActive } from "@/eth/app";
-import { useState } from "react";
-import { Box, Text, VStack, List, ListItem, RecipePropsProvider} from "@chakra-ui/react";
-import { useForm, SubmitHandler, get } from "react-hook-form";
-import { toaster } from "@/components/ui/toaster";
 import { MedicalRecordReturn, MedicalRecordsRepository } from "@/repository/MedicalRecordsRepository";
-import { Field } from "@/components/ui/field";
-import { Stack, Input, Button } from "@chakra-ui/react";
-
-// Define the dictionary for account mapping (nik: address mapping)
-interface Dictionary<T> {
-  [key: string]: T;
-}
+import { Box, Button, Input, List, Stack, Text, VStack } from "@chakra-ui/react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 interface NikInput {
   nik: string;
 }
-
-const accountMapping: Dictionary<string> = {
-  "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266": "1",
-  "0x70997970c51812dc3a010c7d01b50e0d17dc79c8": "2",
-  "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc": "3",
-};
-
-// for layanan kesehatan account
-const layananKesehatanAddress = {
-  // penyedia : address
-  "1": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-  "2": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-};
 
 export const InsuranceClaim = () => {
   const { web3, account } = useWeb3();
@@ -39,7 +20,6 @@ export const InsuranceClaim = () => {
   const {
     register,
     getValues,
-    formState: { errors },
   } = useForm<NikInput>();
 
   const startClaim = async () => {
@@ -53,7 +33,7 @@ export const InsuranceClaim = () => {
 
     const isInsuranceActive = await isActive(
       web3!,
-      account!,
+      selectedRecord.nik,
       selectedRecord.checkupDate.split("-")[0] as unknown as number,
       selectedRecord.checkupDate.split("-")[1] as unknown as number
     );

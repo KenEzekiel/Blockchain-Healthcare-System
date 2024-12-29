@@ -15,6 +15,7 @@ interface InsuranceFormInputs {
   month: string;
   insuranceType: string;
   premium: string;
+  nik: number;
 }
 
 export const InsuranceForm = () => {
@@ -24,7 +25,7 @@ export const InsuranceForm = () => {
     .toString()
     .padStart(2, "0")}`;
 
-  async function submitPayment() {
+  async function submitPayment(nik: number) {
     if (web3 && account && currentMonth) {
       const tokenContract = getTokenContract(web3);
 
@@ -45,7 +46,8 @@ export const InsuranceForm = () => {
       payPremium(
         web3,
         currentMonth.split("-")[1] as unknown as number,
-        currentMonth.split("-")[0] as unknown as number
+        currentMonth.split("-")[0] as unknown as number,
+        nik
       );
     }
   }
@@ -56,8 +58,9 @@ export const InsuranceForm = () => {
     formState: { errors },
   } = useForm<InsuranceFormInputs>();
 
-  const onSubmit: SubmitHandler<InsuranceFormInputs> = (data) => {
+  const onSubmit: SubmitHandler<InsuranceFormInputs> = async (data) => {
     console.log("Insurance Form Data:", data, errors);
+    await submitPayment(data.nik);
   };
 
   return (
@@ -70,12 +73,19 @@ export const InsuranceForm = () => {
             {...register("month")}
           />
         </Field>
+        <Field label="NIK yang akan diasuransikan">
+          <Input
+            type="nik"
+            defaultValue={0}
+            {...register("nik", { required: true })}
+          />
+        </Field>
 
         <Button
           type="submit"
           mt={4}
           colorScheme="green"
-          onClick={submitPayment}
+          // onClick={submitPayment}
         >
           Submit Insurance Form
         </Button>

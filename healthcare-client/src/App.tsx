@@ -1,22 +1,14 @@
-import { Box, Text, Button, Stack, HStack, Container } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Box, Button, Container, HStack, Stack, Text } from "@chakra-ui/react";
+import { useState } from "react";
 import "./App.css";
-import { Web3Provider, useWeb3 } from "./context/Web3Context";
-import { MedicalForm } from "./components/MedicalForm";
-import { InsuranceForm } from "./components/InsuranceForm";
 import { InsuranceCheck } from "./components/InsuranceCheck";
-import {
-  payPremium,
-  isActive,
-  claim,
-  setPremiumAmount,
-  setClaimAmount,
-  withdrawTokens,
-  getGasPrice,
-  setupContractsEventListener,
-} from "./eth/app";
-import { MedicalInsurance } from "./modules/MedicalInsurance";
 import { InsuranceClaim } from "./components/InsuranceClaim";
+import { InsuranceForm } from "./components/InsuranceForm";
+import { MedicalForm } from "./components/MedicalForm";
+import { useWeb3 } from "./context/Web3Context";
+import {
+  getGasPrice,
+} from "./eth/app";
 
 
 function App() {

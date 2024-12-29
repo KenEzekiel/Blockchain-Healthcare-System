@@ -7,6 +7,7 @@ import { useWeb3 } from "@/context/Web3Context";
 
 interface InsuranceCheckInputs {
   month: string;
+  nik: number;
 }
 
 export const InsuranceCheck = () => {
@@ -17,7 +18,7 @@ export const InsuranceCheck = () => {
     .toString()
     .padStart(2, "0")}`;
 
-  const [monthstring, setMonth] = useState<string>(currentMonth);
+  const [monthstring] = useState<string>(currentMonth);
 
   const {
     register,
@@ -25,16 +26,17 @@ export const InsuranceCheck = () => {
     formState: { errors },
   } = useForm<InsuranceCheckInputs>();
 
-  const onSubmit: SubmitHandler<InsuranceCheckInputs> = (data) => {
+  const onSubmit: SubmitHandler<InsuranceCheckInputs> = async (data) => {
     console.log("Insurance Form Data:", data, errors);
+    updateInsuranceActive(data.nik);
   };
 
-  async function updateInsuranceActive() {
+  async function updateInsuranceActive(nik: number) {
     if (web3 && account && currentMonth) {
       setInsuranceActive(
         await isActive(
           web3,
-          account,
+          nik,
           currentMonth.split("-")[0] as unknown as number,
           currentMonth.split("-")[1] as unknown as number
         )
@@ -43,7 +45,7 @@ export const InsuranceCheck = () => {
       console.log(
         "update insurance failed",
         web3,
-        account,
+        nik,
         currentMonth.split("-")[0] as unknown as number,
         currentMonth.split("-")[1] as unknown as number
       );
@@ -71,12 +73,19 @@ export const InsuranceCheck = () => {
             {...register("month")}
           />
         </Field>
+        <Field label="NIK yang akan dicek">
+          <Input
+            type="nik"
+            defaultValue={0}
+            {...register("nik", { required: true })}
+          />
+        </Field>
 
         <Button
           type="submit"
           mt={4}
           colorScheme="green"
-          onClick={updateInsuranceActive}
+          // onClick={updateInsuranceActive}
         >
           Check Insurance
         </Button>
