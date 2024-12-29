@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+cd ../
+
 echo "Disabling Hardhat telemetry..."
 export HARDHAT_DISABLE_TELEMETRY=true
 

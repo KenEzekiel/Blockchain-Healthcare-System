@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import CryptoJS from "crypto-js";
-import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
+import MedicalRecordsArtifacts from "../abi/MedicalRecords.json";
 
 export type MedicalRecord = {
   checkupDate: string;
@@ -32,7 +32,7 @@ export class MedicalRecordsRepository {
     try {
       this.web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_BLOCKCHAIN_URL!));
       this.contract = new this.web3.eth.Contract(
-        MedicalRecordsABI,
+        MedicalRecordsArtifacts.abi,
         import.meta.env.VITE_MEDICAL_RECORDS_ADDRESS!
       );
       this.secretKey = secretKey;

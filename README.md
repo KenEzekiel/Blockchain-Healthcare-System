@@ -11,7 +11,7 @@ Healthcare BPJS System that utilizes blockchain to create a transparent, secure,
 
 ## System Requirements
 
-1. Package Manager (preferably pnpm)
+1. pnpm package manager 
 2. Any OS
 3. CPU 1-2 Cores (intel i3 minimum)
 4. RAM 4 GB

@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import Insurance from "../abi/Insurance.json";
-import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
+import MedicalRecordsArtifacts from "../abi/MedicalRecords.json";
 import MedicalToken from "../abi/MedicalToken.json";
 import PriceOracle from "../abi/PriceOracle.json";
 
@@ -29,7 +29,7 @@ export function getInsuranceContract(web3: Web3) {
 export function getMedRecContract(web3: Web3) {
   try {
     const medRecContract = new web3.eth.Contract(
-      MedicalRecordsABI,
+      MedicalRecordsArtifacts.abi,
       MEDICAL_RECORD_ADDRESS
     );
     console.log("Medical Records contract instance created:", medRecContract);
