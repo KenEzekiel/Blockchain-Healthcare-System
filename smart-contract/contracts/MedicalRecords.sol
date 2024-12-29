@@ -23,7 +23,7 @@ contract MedicalRecords {
     error OnlyAdmin();
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can perform this action");
+        if (msg.sender != admin) revert OnlyAdmin();
         _;
     }
 
