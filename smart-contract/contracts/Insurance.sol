@@ -26,8 +26,8 @@ contract Insurance {
         uint256 month,
         uint256 claimAmount,
         address indexed provider,
-        string nik,
-        uint256 recordIndex
+        uint64 nik,
+        uint16 recordIndex
     );
     event SetPremium(uint256 oldAmount, uint256 newAmount);
 
@@ -132,8 +132,8 @@ contract Insurance {
         uint256 year,
         uint256 month,
         address provider,
-        string memory nik,
-        uint256 recordIndex
+        uint64 nik,
+        uint16 recordIndex
     ) external {
         uint256 currentClaim = priceOracle.getClaimPrice();
         require(year > 0, "Year must be nonzero");

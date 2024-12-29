@@ -3,7 +3,7 @@ pragma solidity ^0.8.27;
 
 contract MedicalRecords {
     address public admin;
-    address public allowedContract; // Whitelisted contract address
+    address public allowedContract; 
 
     struct Record {
         string encryptedData;
@@ -12,13 +12,15 @@ contract MedicalRecords {
         bool isPaid; // Flag to track payment status
     }
 
-    mapping(string => Record[]) private recordsByNIK; 
+    mapping(uint64 => Record[]) private recordsByNIK; 
     mapping(address => bool) public authorizedProviders;
 
-    event RecordAdded(uint256 recordIndex, uint256 timestamp, bool isPaid);
-    event ProviderAuthorized(address indexed provider);
-    event ProviderRemoved(address indexed provider);
-    event RecordPaymentUpdated(string indexed nik, uint256 indexed recordIndex, bool isPaid);
+    event RecordAdded(uint16 recordIndex, uint256 timestamp, bool isPaid);
+    event ProviderAuthorized(address provider);
+    event ProviderRemoved(address provider);
+    event RecordPaymentUpdated(uint64 nik, uint16 recordIndex, bool isPaid);
+
+    error OnlyAdmin();
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");
@@ -53,8 +55,8 @@ contract MedicalRecords {
         emit ProviderRemoved(provider);
     }
 
-    function addRecord(string memory nik, string memory encryptedData) public onlyAuthorizedProvider {
-        uint256 recordIndex = recordsByNIK[nik].length;
+    function addRecord(uint64 nik, string memory encryptedData) public onlyAuthorizedProvider {
+        uint16 recordIndex = uint16(recordsByNIK[nik].length);
         recordsByNIK[nik].push(Record({
             encryptedData: encryptedData,
             provider: msg.sender,
@@ -65,7 +67,7 @@ contract MedicalRecords {
         emit RecordAdded(recordIndex, block.timestamp, false);
     }
 
-    function updateRecordPaymentStatus(string memory nik, uint256 recordIndex, bool isPaid) 
+    function updateRecordPaymentStatus(uint64 nik, uint16 recordIndex, bool isPaid) 
         public 
         onlyAllowedContract 
     {
@@ -75,11 +77,11 @@ contract MedicalRecords {
         emit RecordPaymentUpdated(nik, recordIndex, isPaid);
     }
 
-    function getRecords(string memory nik) public view onlyAuthorizedProvider returns (Record[] memory) {
+    function getRecords(uint64 nik) public view onlyAuthorizedProvider returns (Record[] memory) {
         return recordsByNIK[nik];
     }
 
-    function getRecordCount(string memory nik) public view onlyAuthorizedProvider returns (uint256) {
+    function getRecordCount(uint64 nik) public view onlyAuthorizedProvider returns (uint256) {
         return recordsByNIK[nik].length;
     }
 }
