@@ -85,6 +85,10 @@ contract Insurance {
             "Insufficient token allowance"
         );
 
+        // Mark user as active for this (year, month)
+        _activeMonthYear[msg.sender][year][month] = true;
+        emit PremiumPaid(msg.sender, year, month, currentPremium);
+
         // Transfer tokens from user to contract
         bool success = medicalToken.transferFrom(
             msg.sender,
@@ -92,11 +96,6 @@ contract Insurance {
             currentPremium
         );
         require(success, "Token transfer failed");
-
-        // Mark user as active for this (year, month)
-        _activeMonthYear[msg.sender][year][month] = true;
-
-        emit PremiumPaid(msg.sender, year, month, currentPremium);
     }
 
     /**
@@ -149,8 +148,6 @@ contract Insurance {
             "Insufficient contract token balance"
         );
 
-        bool success = medicalToken.transfer(provider, currentClaim);
-        require(success, "Claim transfer failed");
 
         medicalRecords.updateRecordPaymentStatus(nik, recordIndex, true);
 
@@ -163,6 +160,8 @@ contract Insurance {
             nik,
             recordIndex
         );
+        bool success = medicalToken.transfer(provider, currentClaim);
+        require(success, "Claim transfer failed");
     }
 
     // ADMIN FUNCTIONS
