@@ -18,7 +18,9 @@ import {
 import { MedicalInsurance } from "./modules/MedicalInsurance";
 import { InsuranceClaim } from "./components/InsuranceClaim";
 
+
 function App() {
+  console.log(import.meta.env.VITE_SECRET_KEY);
   const { account, connect, disconnect, web3 } = useWeb3();
   const [gasPriceTime, setGasPriceTime] = useState(0);
 

@@ -2,36 +2,36 @@
 import { Stack, Input, Button } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { addMedrec, claim, isActive } from "@/eth/app";
 import { useWeb3 } from "@/context/Web3Context";
 import { MedicalInsurance } from "@/modules/MedicalInsurance";
+import { MedicalRecord, MedicalRecordsRepository } from "@/repository/MedicalRecordsRepository";
 
 interface MedicalFormInputs {
   tanggalPengecekan: string;
   penyediaLayananKesehatan: string;
-  nik: string;
+  nik: number;
   nama: string;
   diagnosa: string;
   tindakan: string;
 }
 
-// for user patient account
-const accountMapping = {
-  // nik : address
-  "1": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-  "2": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-  "3": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-};
+// // for user patient account
+// const accountMapping = {
+//   // nik : address
+//   "1": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+//   "2": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+//   "3": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+// };
 
-// for layanan kesehatan account
-const layananKesehatanAddress = {
-  // penyedia : address
-  "1": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-  "2": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-};
+// // for layanan kesehatan account
+// const layananKesehatanAddress = {
+//   // penyedia : address
+//   "1": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+//   "2": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+// };
 
 export const MedicalForm = () => {
-  const { web3, account } = useWeb3();
+  const { account } = useWeb3();
   const today = new Date();
   const formattedDate = today.toISOString().split("T")[0];
 
@@ -44,23 +44,28 @@ export const MedicalForm = () => {
 
   const onSubmit: SubmitHandler<MedicalFormInputs> = (data) => {
     console.log("Medical Form Data:", data, errors);
-    const recordIndex = addMedrec(
-      web3!,
-      data.tanggalPengecekan,
-      data.penyediaLayananKesehatan,
-      data.nik,
-      data.nama,
-      data.diagnosa,
-      data.tindakan,
-      account!
-    );
 
-    console.log(recordIndex);
+    const medicalRecord: MedicalRecord = {
+     checkupDate: data.tanggalPengecekan,
+      healthcareProvider: data.penyediaLayananKesehatan,
+      nik: data.nik,
+      name: data.nama,
+      diagnosis: data.diagnosa,
+      treatment: data.tindakan,
+    };
 
-    if (recordIndex !== null) {
-      MedicalInsurance.getInstance().nik = data.nik;
-      MedicalInsurance.getInstance().recordIndex = recordIndex;
-    }
+    const medicalRecordsRepository = new MedicalRecordsRepository(import.meta.env.VITE_SECRET_KEY!);
+
+    medicalRecordsRepository.addRecord(data.nik, medicalRecord, account!)
+    .then((recordIndex) => {
+      if (recordIndex !== null) {
+        MedicalInsurance.getInstance().nik = data.nik;
+        MedicalInsurance.getInstance().recordIndex = recordIndex;
+      }
+    })
+    .catch((error) => {
+      console.error("Error adding medical record:", error);
+    });
 
     reset();
   };

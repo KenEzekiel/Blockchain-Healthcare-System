@@ -1,13 +1,20 @@
 import { useWeb3 } from "@/context/Web3Context";
 import { claim, isActive } from "@/eth/app";
-import { getMedRec } from "@/eth/app";
 import { useState } from "react";
-import { Button, Box, Text, VStack, List, ListItem } from "@chakra-ui/react";
+import { Box, Text, VStack, List, ListItem, RecipePropsProvider} from "@chakra-ui/react";
+import { useForm, SubmitHandler, get } from "react-hook-form";
 import { toaster } from "@/components/ui/toaster";
+import { MedicalRecordReturn, MedicalRecordsRepository } from "@/repository/MedicalRecordsRepository";
+import { Field } from "@/components/ui/field";
+import { Stack, Input, Button } from "@chakra-ui/react";
 
 // Define the dictionary for account mapping (nik: address mapping)
 interface Dictionary<T> {
   [key: string]: T;
+}
+
+interface NikInput {
+  nik: string;
 }
 
 const accountMapping: Dictionary<string> = {
@@ -25,8 +32,15 @@ const layananKesehatanAddress = {
 
 export const InsuranceClaim = () => {
   const { web3, account } = useWeb3();
-  const [medicalrecords, setMedrecords] = useState<any[]>([]); // Store fetched records
-  const [selectedRecord, setSelectedRecord] = useState<any | null>(null); // Store the selected record
+  const [medicalrecords, setMedrecords] = useState<MedicalRecordReturn[]>([]); // Store fetched records
+  const [selectedRecord, setSelectedRecord] = useState<MedicalRecordReturn | null>(null); // Store the selected record
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1); // Store the selected record index
+
+  const {
+    register,
+    getValues,
+    formState: { errors },
+  } = useForm<NikInput>();
 
   const startClaim = async () => {
     if (!selectedRecord) {
@@ -50,9 +64,9 @@ export const InsuranceClaim = () => {
         web3!,
         selectedRecord.checkupDate.split("-")[0] as unknown as number,
         selectedRecord.checkupDate.split("-")[1] as unknown as number,
-        layananKesehatanAddress[selectedRecord.healthcareProvider],
-        selectedRecord.nik,
-        selectedRecord.recordIndex
+        selectedRecord.provider,
+        selectedRecord.nik.toString(),
+        selectedIndex
       );
       toaster.create({
         type: "info",
@@ -70,17 +84,26 @@ export const InsuranceClaim = () => {
   };
 
   const getMedrec = () => {
-    if (!account) return;
+    if (!account) {
+      alert("Please connect your wallet first.");
+      return;
+    }
 
-    const nik = accountMapping[account!];
+    const nik = Number(getValues("nik"));
+    // const nik = Number(accountMapping[account!]);
     console.log("nik", nik);
     // Fetch medical records for the given NIK
-    const records = getMedRec(web3!, nik);
+    // const records = getMedRec(web3!, nik);
 
-    // Assuming the getMedRec function returns a promise and an array of records
+    const medicalRecordsRepository = new MedicalRecordsRepository(import.meta.env.VITE_SECRET_KEY!);
+    const records = medicalRecordsRepository.getRecords(nik);
+
     records
-      .then((recordsData: any[]) => {
-        setMedrecords(recordsData); // Set the fetched records in state
+      .then((recordsData: MedicalRecordReturn[]) => {
+        if (recordsData.length === 0) {
+          alert("No records found for the given NIK.");
+        }
+        setMedrecords(recordsData);
         console.log(recordsData);
       })
       .catch((error) => {
@@ -91,8 +114,8 @@ export const InsuranceClaim = () => {
 
   // Handle selecting a medical record
   const handleSelectRecord = (record: any, index: number) => {
-    record.recordIndex = index;
-    setSelectedRecord(record); // Set the selected record in state
+    setSelectedIndex(index); 
+    setSelectedRecord(record); 
     toaster.create({
       title: "Record Selected",
       type: "info",
@@ -103,9 +126,33 @@ export const InsuranceClaim = () => {
   return (
     <Box p={5} borderRadius="md" bg="white">
       <VStack align="start">
-        <Button colorScheme="blue" onClick={getMedrec}>
-          Get Medical Records
-        </Button>
+        <Stack mb={6}>
+          <form>
+            <Field label="NIK">
+              <Input
+                type="nik"
+                defaultValue={1234567890123456}
+                {...register("nik", {
+                  required: "NIK is required",
+                  pattern: {
+                      value: /^[0-9]+$/, // Ensure only numbers
+                      message: "NIK must be a valid integer",
+                  },
+                  validate: {
+                      length: (value) =>
+                          value.length === 16 || "NIK must be equal to 16 digits",
+                  },
+              })}
+              />
+            </Field>
+            <Button onClick={getMedrec}>
+              Get Medical Records
+            </Button>
+          </form>
+        </Stack>  
+          {/* <Button colorScheme="blue" onClick={getMedrec}>
+            Get Medical Records
+          </Button> */}
 
         {/* Display medical records */}
         {medicalrecords.length > 0 ? (
