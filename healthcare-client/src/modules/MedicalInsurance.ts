@@ -1,10 +1,10 @@
 export class MedicalInsurance {
   private static instance: MedicalInsurance;
-  public nik: string;
+  public nik: number;
   public recordIndex: number;
 
   private constructor() {
-    this.nik = "";
+    this.nik = 0;
     this.recordIndex = 0;
   }
 

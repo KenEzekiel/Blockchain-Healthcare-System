@@ -5,24 +5,41 @@ import MedicalRecordsABI from "../abi/MedicalRecordsABI.json";
 export type MedicalRecord = {
   checkupDate: string;
   healthcareProvider: string;
-  nik: string;
+  nik: number;
   name: string;
   diagnosis: string;
   treatment: string;
 };
 
-export class MedicalRecordsModule {
+export type MedicalRecordReturn = {
+  checkupDate: string;
+  healthcareProvider: string;
+  nik: number;
+  name: string;
+  diagnosis: string;
+  treatment: string;
+  provider: string;
+  timestamp: number;
+  isPaid: boolean;
+}
+
+export class MedicalRecordsRepository {
   private web3: Web3;
   private contract: any;
   private secretKey: string;
 
-  constructor(providerUrl: string, contractAddress: string, secretKey: string) {
-    this.web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-    this.contract = new this.web3.eth.Contract(
-      MedicalRecordsABI,
-      contractAddress
-    );
-    this.secretKey = secretKey;
+  constructor(secretKey: string) {
+    try {
+      this.web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_BLOCKCHAIN_URL!));
+      this.contract = new this.web3.eth.Contract(
+        MedicalRecordsABI,
+        import.meta.env.VITE_MEDICAL_RECORDS_ADDRESS!
+      );
+      this.secretKey = secretKey;
+    } catch (error) {
+      console.error("Error initializing MedicalRecordsRepository:", error);
+      throw error;
+    }
   }
 
   private encryptRecord(record: MedicalRecord): string {
@@ -37,7 +54,7 @@ export class MedicalRecordsModule {
   }
 
   async addRecord(
-    patientNIK: string,
+    patientNIK: number,
     record: MedicalRecord,
     fromAddress: string
   ): Promise<number> {
@@ -45,7 +62,7 @@ export class MedicalRecordsModule {
       const encryptedData = this.encryptRecord(record);
 
       const receipt = await this.contract.methods
-        .addRecord(patientNIK, encryptedData)
+        .addRecord(patientNIK.toString(), encryptedData)
         .send({ from: fromAddress });
 
       console.log("Transaction Receipt:", receipt);
@@ -72,18 +89,22 @@ export class MedicalRecordsModule {
     }
   }
 
-  async getRecords(patientNIK: string): Promise<MedicalRecord[]> {
-    const records = await this.contract.methods.getRecords(patientNIK).call();
-    return records.map((record: any) => {
-      const decryptedData = this.decryptRecord(record.encryptedData);
+  async getRecords(patientNIK: number): Promise<MedicalRecordReturn[]> {
+    try {
+      const records = await this.contract.methods.getRecords(patientNIK.toString()).call();
+      return records.map((record: any) => {
+        const decryptedData = this.decryptRecord(record.encryptedData);
 
-      // Spread the decrypted data into the returned object along with the other fields
-      return {
-        ...decryptedData, // Spread the decrypted data (this will merge the decrypted fields)
-        provider: record.provider, // Include provider
-        timestamp: record.timestamp, // Include timestamp
-        isPaid: record.isPaid, // Include isPaid
-      };
-    });
+        return {
+          ...decryptedData, 
+          provider: record.provider, 
+          timestamp: record.timestamp,
+          isPaid: record.isPaid, 
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching records:", error);
+      throw new Error("An unexpected error occurred while fetching records.");
+    }
   }
 }

@@ -318,69 +318,6 @@ export async function withdrawTokens(
   }
 }
 
-export async function addMedrec(
-  web3: Web3,
-  tanggal: string,
-  penyediaLayanan: string,
-  nik: string,
-  nama: string,
-  diagnosa: string,
-  tindakan: string,
-  account: string
-) {
-  try {
-    const medrec = getMedRecContract(web3);
-    if (!medrec) throw new Error("Medical record contract not found");
-
-    const medrecModule = new MedicalRecordsModule(
-      "http://127.0.0.1:8545",
-      MEDICAL_RECORD_ADDRESS,
-      "password"
-    );
-
-    const medicalRecord: MedicalRecord = {
-      checkupDate: new Date(tanggal).toISOString(),
-      healthcareProvider: penyediaLayanan,
-      nik: nik,
-      name: nama,
-      diagnosis: diagnosa,
-      treatment: tindakan,
-    };
-
-    const recordIndex = await medrecModule.addRecord(
-      nik,
-      medicalRecord,
-      account
-    );
-
-    // Ensure the recordIndex is a valid number before returning it
-    if (recordIndex !== undefined && !isNaN(recordIndex)) {
-      return Number(recordIndex);
-    } else {
-      throw new Error("Record index not found in the transaction receipt.");
-    }
-  } catch (error) {
-    console.log("Failed adding medical record!", error);
-  }
-}
-
-export async function getMedRec(web3: Web3, nik: string) {
-  try {
-    const medrec = getMedRecContract(web3);
-    if (!medrec) throw new Error("Medical record contract not found");
-
-    const medrecModule = new MedicalRecordsModule(
-      "http://127.0.0.1:8545",
-      MEDICAL_RECORD_ADDRESS,
-      "password"
-    );
-
-    return medrecModule.getRecords(nik);
-  } catch (error) {
-    console.log("Failed getting medical record!", error);
-  }
-}
-
 export async function getTokenBalance(web3: Web3, account: string) {
   try {
     // Initialize the token contract
