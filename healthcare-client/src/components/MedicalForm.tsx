@@ -38,6 +38,7 @@ export const MedicalForm = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<MedicalFormInputs>();
 
@@ -61,7 +62,7 @@ export const MedicalForm = () => {
       MedicalInsurance.getInstance().recordIndex = recordIndex;
     }
 
-    
+    reset();
   };
 
   return (
