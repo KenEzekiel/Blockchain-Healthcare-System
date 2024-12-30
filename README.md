@@ -1,50 +1,83 @@
-# Blockchain-Healthcare-System
+Here’s an improved version of your README that’s more structured, polished, and user-friendly:
 
+---
+
+# Blockchain Healthcare System
 Healthcare BPJS System that utilizes blockchain to create a transparent, secure, and decentralized system to manage medical records. Features of this system includes:
 
-1. Insurance Premium Payment
-2. Insurance State Check
-3. Electronic Medical Record Submission
-4. Check & Payment for Medical Checkup
-5. Insurance Claim for Medical Checkup Payment
-6. Payment using Medical Token
+- **Insurance Premium Payment**
+- **Insurance State Check**
+- **Electronic Medical Record Submission**
+- **Medical Checkup Management**
+- **Insurance Claim Management**
+- **Medical Token Payments**
+
+---
 
 ## System Requirements
 
-1. pnpm package manager 
-2. Any OS
-3. CPU 1-2 Cores (intel i3 minimum)
-4. RAM 4 GB
-5. Disk Space 10 GB
+To run the Blockchain Healthcare System, ensure your system meets the following requirements:
 
-## Project Description
+1. **Operating System**: Any OS (Windows, macOS, Linux)
+2. **Processor**: Dual-core CPU (Intel i3 or higher)
+3. **Memory**: 4 GB RAM minimum
+4. **Disk Space**: 10 GB free space
+5. **Dependencies**:
+   - [pnpm](https://pnpm.io/installation) package manager
+   - [Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started) development environment for Ethereum
+6. **Optional**:
+   - A shell capable of running `.sh` scripts for automation.
 
-Consists of three projects:
+---
 
-1. Healthcare Client - Vite + React + TypeScript
-2. Smart Contract - Solidity Hardhat TypeScript
-3. Oracle - NodeJS
+## Project Structure
 
-Setup:
-```
-1. go to each folder `healthcare-client`, `smart-contract`, and `oracle`
-2. do `pnpm install` on each folder
-3. if you don't have hardhat already, do pnpm install --save-dev hardhat
-4. install Solidity extension on vscode
-```
+The system consists of three main components:
 
-Running:
-```
-frontend
-1. pnpm run dev
+1. **Healthcare Client**:
+   - **Stack**: Vite, React, TypeScript
+   - **Purpose**: Frontend for users to interact with the healthcare system.
 
-smart contract
-1. run `deploy_chain.bat`
-2. run `deploy_contract.bat`
-3. run `npx hardhat run scripts/distributeTokens.ts --network localhost`
+2. **Smart Contract**:
+   - **Stack**: Solidity, Hardhat, TypeScript
+   - **Purpose**: Blockchain backend to manage healthcare data and transactions.
 
-oracle
-1. run `node app.js`
-```
+3. **Oracle**:
+   - **Stack**: Node.js
+   - **Purpose**: Middleware for off-chain operations and data synchronization.
+
+---
+
+## Setup Instructions
+
+Follow these steps to set up and run the project:
+
+1. Clone the repository and navigate to the root folder.
+2. Install the dependencies:
+   ```bash
+   pnpm install
+   ```
+3. Start the services:
+
+   **Step 1**: In the root folder, run:
+   ```bash
+   sh run_1.sh
+   ```
+
+   **Step 2**: Open a new terminal and run:
+   ```bash
+   sh run_2.sh
+   ```
+
+   **Step 3**: Open another terminal and run:
+   ```bash
+   sh run_3.sh
+   ```
+
+---
 
 ## Demo
+
+A live or recorded demonstration showcasing the Blockchain Healthcare System can be included here. You can provide a link to a hosted demo or embed a video.
+
+---
