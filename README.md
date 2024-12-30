@@ -1,7 +1,3 @@
-Here’s an improved version of your README that’s more structured, polished, and user-friendly:
-
----
-
 # Blockchain Healthcare System
 Healthcare BPJS System that utilizes blockchain to create a transparent, secure, and decentralized system to manage medical records. Features of this system includes:
 
