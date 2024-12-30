@@ -77,11 +77,11 @@ The short way (using scripts)
 
 The Long way
 
-3.1. Install the dependencier using
+3.1. Install the dependencies using
    ```bash
    pnpm i
    ```
-   in folder healtcare-client, oracle, and smart-Contract
+   in folder healthcare-client, oracle, and smart-Contract
 
 3.2. Run
    ```bash
